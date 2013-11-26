@@ -57,6 +57,17 @@ public class Account {
 			return false;
 	}
 	
+	public double computeInterest(){
+		double interestRate = accountType.interestRate()/100;
+		double interest = balance*interestRate;
+		return interest;
+	}
+	
+	public double addInterestToBalance(){
+		deposit(computeInterest());
+		return balance;
+	}
+	
 	public String accountName(){
 		return name;
 	}

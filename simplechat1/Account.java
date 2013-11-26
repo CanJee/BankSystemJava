@@ -64,7 +64,10 @@ public class Account {
 	}
 	
 	public double addInterestToBalance(){
-		deposit(computeInterest());
+		double amount = computeInterest();
+		deposit(amount);
+		Transaction trans = new Transaction(amount, "Deposit interest into account " + accountName() + ":" + accountId());
+		transactions.add(trans);
 		return balance;
 	}
 	

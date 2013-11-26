@@ -19,6 +19,7 @@ public class Account {
 		this.accountType = accountType;
 		this.accountHolder = accountHolder;
 		transactions = new ArrayList<Transaction>();
+		accountHolder.addAccount(this);
 		
 	}
 	

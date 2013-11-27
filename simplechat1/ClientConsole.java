@@ -42,16 +42,11 @@ public class ClientConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String loginId, String host, int port) 
+  public ClientConsole(String host, int port) 
   {
-	if (loginId == null){
-		System.out.println("No login id entered");
-		System.exit(1);
-	}
     try 
     {
-      client= new ChatClient(loginId, host, port, this);
-      client.handleMessageFromClientUI("#login " + loginId);
+      client= new ChatClient(host, port, this);
     } 
     catch(IOException exception) 
     {
@@ -126,10 +121,14 @@ public class ClientConsole implements ChatIF
         		if (!client.isConnected()){
         			client.openConnection();
         			String[] words = message.split(" ");
-        			client.handleMessageFromClientUI("#login " + words[1]);
+        			if (words[1] == null || words[2] == null){
+        				System.out.println("Invalid email or password entered");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#login " + words[1] + " " + words[2]);
         		}
         		else{
-        			System.out.println("You are already connected to the server");
+        			System.out.println("You are already logged in");
         		}
         	}
         	// If message equals #gethost, display the current host name.
@@ -185,25 +184,23 @@ public class ClientConsole implements ChatIF
    */
   public static void main(String[] args)
   {
-	String loginId = null;
     String host = "";
     int port = DEFAULT_PORT;  //The port number
 
     try
     {
       // Get loginId from command line.
-      loginId = args[0];
       // Get host from command line. If none entered, default will be used.
-      host = args[1];
+      host = args[0];
       // Get port from command line. If none entered, default will be used.
-      port = Integer.parseInt(args[2]);
+      port = Integer.parseInt(args[1]);
     }
     catch(ArrayIndexOutOfBoundsException e)
     {
       // Host used if not entered on the command line.
       host = "localhost";
     }
-    ClientConsole chat= new ClientConsole(loginId, host, port);
+    ClientConsole chat= new ClientConsole(host, port);
     chat.accept();
 }
 }

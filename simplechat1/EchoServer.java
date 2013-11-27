@@ -3,6 +3,7 @@
 // license found at www.lloseng.com 
 
 import java.io.*;
+import java.util.ArrayList;
 
 import ocsf.server.*;
 
@@ -24,6 +25,7 @@ public class EchoServer extends AbstractServer
    * The default port to listen on.
    */
   final public static int DEFAULT_PORT = 5555;
+  private static ArrayList<Person> people;
   
   //Constructors ****************************************************
   
@@ -72,9 +74,18 @@ public class EchoServer extends AbstractServer
 	  {
 		  if(msg.toString().startsWith("#login")) //If the message is the login command with an id, they will be logged in
 		  {
-			  client.setInfo("login id", msg.toString().substring(7));
-			  client.setInfo("clientLoggedIn", "true");
-			  serverConsole.display(msg.toString().substring(7) + " has logged in");
+			  String[] words = ((String) msg).split(" ");
+			  String email = words[1];
+			  String password = words[2];
+			  for (Person p : people){
+				  if (p.getEmail().equals(email) && p.getPassword().equals(password)){
+					  client.setInfo("login id", email);
+					  client.setInfo("clientLoggedIn", "true");
+					  serverConsole.display(email + " has successfully logged in");
+					  return;
+				  }
+			  }
+			  serverConsole.display("Invalid email or password entered");
 			  return;
 		  }
 		  else
@@ -128,6 +139,18 @@ public class EchoServer extends AbstractServer
    */
   public static void main(String[] args) 
   {
+	ArrayList<AccountType> accountTypes = new ArrayList<AccountType>();
+	people = new ArrayList<Person>();
+	AccountType checking = new AccountType("Checking", 1.5);
+	accountTypes.add(checking);
+	AccountType savings = new AccountType("Savings", 2.5);
+	accountTypes.add(savings);
+	Person p1 = new Person("Jack", "1234", "jack@gmail.com");
+	people.add(p1);
+	Person p2 = new Person("Bob", "5678", "bob@gmail.com");
+	people.add(p2);
+	Account jackChecking = new Account(100.50, "Jack's Checking Account", checking, p1);
+	Account bobSavings = new Account(500.21, "Bob's Savings Account", savings, p2);
     int port = 0; //Port to listen on
 
     try

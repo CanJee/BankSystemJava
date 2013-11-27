@@ -119,12 +119,12 @@ public class ClientConsole implements ChatIF
         	// If client is already logged in, display an error message.
         	else if (message.contains("#login")){
         		if (!client.isConnected()){
-        			client.openConnection();
         			String[] words = message.split(" ");
         			if (words[1] == null || words[2] == null){
         				System.out.println("Invalid email or password entered");
         			}
         			else
+        				client.openConnection();
         				client.handleMessageFromClientUI("#login " + words[1] + " " + words[2]);
         		}
         		else{

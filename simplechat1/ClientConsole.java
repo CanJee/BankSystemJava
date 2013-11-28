@@ -119,16 +119,64 @@ public class ClientConsole implements ChatIF
         	// If client is already logged in, display an error message.
         	else if (message.contains("#login")){
         		if (!client.isConnected()){
+        			client.openConnection();
         			String[] words = message.split(" ");
-        			if (words[1] == null || words[2] == null){
+        			if (words.length!=3){
         				System.out.println("Invalid email or password entered");
+        				client.closeConnection();
         			}
         			else
-        				client.openConnection();
         				client.handleMessageFromClientUI("#login " + words[1] + " " + words[2]);
         		}
         		else{
         			System.out.println("You are already logged in");
+        		}
+        	}
+        	else if (message.contains("#displayaccounts")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to view you accounts");
+        		}
+        		else{
+        			client.handleMessageFromClientUI("#displayaccounts");
+        		}
+        	}
+        	else if (message.contains("#deposit")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=3){
+        				System.out.println("Please enter #deposit followed by account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#deposit " + words[1] + " " + words[2]);
+        		}
+        	}
+        	else if (message.contains("#withdraw")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=3){
+        				System.out.println("Please enter #withdraw followed by account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#withdraw " + words[1] + " " + words[2]);
+        		}
+        	}
+        	else if (message.contains("#transfer")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=4){
+        				System.out.println("Please enter #transfer followed by account id, transfer to account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#transfer " + words[1] + " " + words[2] + " " + words[3]);
         		}
         	}
         	// If message equals #gethost, display the current host name.

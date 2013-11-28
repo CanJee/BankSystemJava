@@ -35,4 +35,9 @@ public class Person {
 		return accounts;
 	}
 	
+	public String toString(){
+		String info = getName() + "\n Email: " + getEmail();
+		return info;
+	}
+	
 }

@@ -3,6 +3,7 @@
 // license found at www.lloseng.com 
 
 import java.io.*;
+import java.util.ArrayList;
 
 import ocsf.server.*;
 
@@ -24,6 +25,8 @@ public class EchoServer extends AbstractServer
    * The default port to listen on.
    */
   final public static int DEFAULT_PORT = 5555;
+  private static ArrayList<Person> people;
+  private static Person currentPerson;
   
   //Constructors ****************************************************
   
@@ -54,13 +57,14 @@ public class EchoServer extends AbstractServer
   {
 	  // This had to be modified to deal with user logins -NS
 	  String clientLoggedIn = null;
+	  String message = msg.toString();
 	  try
 	  {
 		  //An attempt is made to see if the client has logged in yet -NS
 		  clientLoggedIn = client.getInfo("clientLoggedIn").toString();
 
 		  //If the client has logged in, but tries the login, an error should be displayed -NS
-		  if(clientLoggedIn.matches("true") && msg.toString().startsWith("#login"))
+		  if(clientLoggedIn.matches("true") && message.startsWith("#login"))
 		  {
 			  client.sendToClient("SERVER MSG> Error: You have already logged in");
 			  serverConsole.display("Message received: " + msg + " from " + client);
@@ -70,11 +74,31 @@ public class EchoServer extends AbstractServer
 	  }
 	  catch(NullPointerException ex) //an exception is thrown if the user hasn't logged in yet -NS
 	  {
-		  if(msg.toString().startsWith("#login")) //If the message is the login command with an id, they will be logged in
+		  if(message.startsWith("#login")) //If the message is the login command with an id, they will be logged in
 		  {
-			  client.setInfo("login id", msg.toString().substring(7));
-			  client.setInfo("clientLoggedIn", "true");
-			  serverConsole.display(msg.toString().substring(7) + " has logged in");
+			  String[] words = ((String) msg).split(" ");
+			  String email = words[1];
+			  String password = words[2];
+			  for (Person p : people){
+				  if (p.getEmail().equals(email) && p.getPassword().equals(password)){
+					  client.setInfo("login id", email);
+					  client.setInfo("clientLoggedIn", "true");
+					  currentPerson = p;
+					  
+					  try {
+						client.sendToClient(email + " has successfully logged in");
+					} catch (IOException e) {
+						System.out.println("IO Exception");
+					}
+					  return;
+				  }
+			  }
+			  try {
+				client.sendToClient("SERVER MSG> Error: Invalid email or password entered");
+				client.close();
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
 			  return;
 		  }
 		  else
@@ -91,7 +115,184 @@ public class EchoServer extends AbstractServer
 		  }
 	  } catch (IOException e) {
 
-	  }	 
+	  }
+	  
+	  if(message.startsWith("#displayaccounts")){
+		  ArrayList<Account> accounts = currentPerson.getAccounts();
+		  for (Account account : accounts){
+			  try {
+				client.sendToClient(account+"");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+	  }
+	  else if (message.startsWith("#displaytransactions")){
+		  ArrayList<Account> accounts = currentPerson.getAccounts();
+		  Account transAccount = null;
+		  String[] words = message.split(" ");
+		  for (Account account : accounts){
+			  if(account.accountId()==Integer.parseInt(words[1]))
+				  transAccount = account;
+		  }
+		  if (transAccount==null){
+			  try {
+				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else{
+			  for (Transaction trans : transAccount.accountTransactions()){
+				  try {
+					client.sendToClient(trans.toString()+"");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+		  }
+		  
+	  }
+	  else if(message.startsWith("#deposit")){
+		  String[] words = message.split(" ");
+		  Account depositAccount = null;
+		  double amount = Double.parseDouble(words[2]);
+		  ArrayList<Account> accounts = currentPerson.getAccounts();
+		  for (Account account : accounts){
+			  if(account.accountId()==Integer.parseInt(words[1]))
+				  depositAccount = account;
+		  }
+		  if (depositAccount==null){
+			  try {
+				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else{
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+			  else{
+				  depositAccount.deposit(amount);
+				  try {
+					client.sendToClient("Deposit successful. Your new account balance is " + depositAccount.accountBalance());
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+		  }
+		  
+	  }
+	  else if(message.startsWith("#withdraw")){
+		  String[] words = message.split(" ");
+		  Account withdrawlAccount = null;
+		  double amount = Double.parseDouble(words[2]);
+		  ArrayList<Account> accounts = currentPerson.getAccounts();
+		  for (Account account : accounts){
+			  if(account.accountId()==Integer.parseInt(words[1]))
+				  withdrawlAccount = account;
+		  }
+		  if (withdrawlAccount==null){
+			  try {
+				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else{
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+			  else{
+				  boolean success = withdrawlAccount.withdraw(amount);
+				  if (!success){
+					  try {
+						client.sendToClient("Withdraw unsuccessful! Insufficient Funds.");
+					} catch (IOException e) {
+						System.out.println("IO Exception");
+					}
+				  }
+				  else{
+					  try {
+							client.sendToClient("Withdrawl successful. Your new account balance is " + withdrawlAccount.accountBalance());
+						} catch (IOException e) {
+							System.out.println("IO Exception");
+						}
+				  }
+			  }
+		  }
+		  
+	  }
+	  else if(message.startsWith("#transfer")){
+		  String[] words = message.split(" ");
+		  Account yourAccount = null;
+		  Account transferToAccount = null;
+		  double amount;
+		  amount = Double.parseDouble(words[3]);
+		  ArrayList<Account> accounts = new ArrayList<Account>();
+		  for (Person p : people){
+			  for (Account account : p.getAccounts()){
+				  accounts.add(account);
+			  }
+		  }
+		  for (Account account : accounts){
+			  if(account.accountId()==Integer.parseInt(words[1]))
+				  yourAccount = account;
+			  else if (account.accountId()==Integer.parseInt(words[2]))
+				  transferToAccount = account;
+				  
+		  }
+		  if (yourAccount == null){
+			  try {
+				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else if (transferToAccount == null){
+			  try {
+				client.sendToClient("SERVER MSG> The transfer to account with that account id does not exist");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else{
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+			  else{
+				  boolean success = yourAccount.transfer(transferToAccount, amount);
+				  if (!success){
+					  try {
+						client.sendToClient("Transfer unsuccessful! Insufficient funds.");
+					} catch (IOException e) {
+						System.out.println("IO Exception");
+					}
+				  }
+				  else{
+					  try {
+							client.sendToClient("Transfer successful. Your new account balance is " + yourAccount.accountBalance());
+						} catch (IOException e) {
+							System.out.println("IO Exception");
+						}
+				  }
+			  }
+		  }
+		  
+	  }
 	  
 	  String login = client.getInfo("login id").toString();
 	  serverConsole.display("Message received: " + msg + " from " + login);
@@ -128,6 +329,18 @@ public class EchoServer extends AbstractServer
    */
   public static void main(String[] args) 
   {
+	ArrayList<AccountType> accountTypes = new ArrayList<AccountType>();
+	people = new ArrayList<Person>();
+	AccountType checking = new AccountType("Checking", 1.5);
+	accountTypes.add(checking);
+	AccountType savings = new AccountType("Savings", 2.5);
+	accountTypes.add(savings);
+	Person p1 = new Person("Jack", "1234", "jack@gmail.com");
+	people.add(p1);
+	Person p2 = new Person("Bob", "5678", "bob@gmail.com");
+	people.add(p2);
+	Account jackChecking = new Account(100.50, "Jack's Checking Account", checking, p1);
+	Account bobSavings = new Account(500.21, "Bob's Savings Account", savings, p2);
     int port = 0; //Port to listen on
 
     try

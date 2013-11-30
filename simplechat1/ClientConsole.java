@@ -42,16 +42,11 @@ public class ClientConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String loginId, String host, int port) 
+  public ClientConsole(String host, int port) 
   {
-	if (loginId == null){
-		System.out.println("No login id entered");
-		System.exit(1);
-	}
     try 
     {
-      client= new ChatClient(loginId, host, port, this);
-      client.handleMessageFromClientUI("#login " + loginId);
+      client= new ChatClient(host, port, this);
     } 
     catch(IOException exception) 
     {
@@ -126,10 +121,75 @@ public class ClientConsole implements ChatIF
         		if (!client.isConnected()){
         			client.openConnection();
         			String[] words = message.split(" ");
-        			client.handleMessageFromClientUI("#login " + words[1]);
+        			if (words.length!=3){
+        				System.out.println("Invalid email or password entered");
+        				client.closeConnection();
+        			}
+        			else
+        				client.handleMessageFromClientUI("#login " + words[1] + " " + words[2]);
         		}
         		else{
-        			System.out.println("You are already connected to the server");
+        			System.out.println("You are already logged in");
+        		}
+        	}
+        	else if (message.contains("#displayaccounts")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to view you accounts");
+        		}
+        		else{
+        			client.handleMessageFromClientUI("#displayaccounts");
+        		}
+        	}
+        	else if (message.contains("#deposit")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=3){
+        				System.out.println("Please enter #deposit followed by account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#deposit " + words[1] + " " + words[2]);
+        		}
+        	}
+        	else if (message.contains("#withdraw")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=3){
+        				System.out.println("Please enter #withdraw followed by account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#withdraw " + words[1] + " " + words[2]);
+        		}
+        	}
+        	else if (message.contains("#displaytransactions")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to view your transactions");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=2){
+        				System.out.println("Please enter #displaytransactions followed by account id");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#displaytransactions " + words[1]);
+        		}
+        	}
+        	else if (message.contains("#transfer")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to withdraw or deposit funds");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=4){
+        				System.out.println("Please enter #transfer followed by account id, transfer to account id and amount");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#transfer " + words[1] + " " + words[2] + " " + words[3]);
         		}
         	}
         	// If message equals #gethost, display the current host name.
@@ -185,25 +245,23 @@ public class ClientConsole implements ChatIF
    */
   public static void main(String[] args)
   {
-	String loginId = null;
     String host = "";
     int port = DEFAULT_PORT;  //The port number
 
     try
     {
       // Get loginId from command line.
-      loginId = args[0];
       // Get host from command line. If none entered, default will be used.
-      host = args[1];
+      host = args[0];
       // Get port from command line. If none entered, default will be used.
-      port = Integer.parseInt(args[2]);
+      port = Integer.parseInt(args[1]);
     }
     catch(ArrayIndexOutOfBoundsException e)
     {
       // Host used if not entered on the command line.
       host = "localhost";
     }
-    ClientConsole chat= new ClientConsole(loginId, host, port);
+    ClientConsole chat= new ClientConsole(host, port);
     chat.accept();
 }
 }

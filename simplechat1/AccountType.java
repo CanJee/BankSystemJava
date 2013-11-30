@@ -19,7 +19,7 @@ public class AccountType {
 	}
 	
 	public String toString(){
-		String accountTypeStr = "Type Name: " + typeName() + "\n Interest Rate: " + interestRate();
+		String accountTypeStr = typeName() + "\n Interest Rate: " + interestRate();
 		return accountTypeStr;
 	}
 }

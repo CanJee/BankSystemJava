@@ -6,14 +6,14 @@ public class Account {
 	
 	private double balance;
 	private String name;
-	private int id;
+	private int identification;
 	private AccountType accountType;
 	private Person accountHolder;
-	ArrayList<Transaction> transactions;
+	private ArrayList<Transaction> transactions;
 	
 	public Account(double balance, String name, AccountType accountType, Person accountHolder){
-		Random rand = new Random(); 
-		int id = rand.nextInt(9000) + 1000;
+		Random rand = new Random();
+		identification = rand.nextInt((9999 - 1000) + 1) + 1000;
 		this.balance = balance;
 		this.name = name;
 		this.accountType = accountType;
@@ -28,7 +28,7 @@ public class Account {
 			return false;
 		}
 		else{
-			balance =- amount;
+			balance = balance - amount;
 			Transaction trans = new Transaction(amount, "Withdraw from account " + accountName() + ":" + accountId());
 			transactions.add(trans);
 			return true;
@@ -45,12 +45,19 @@ public class Account {
 		transactions.add(trans);
 	}
 	
+	public void addTransaction(Transaction transaction){
+		transactions.add(transaction);
+	}
+	
 	public boolean transfer(Account toAccount, double amount){
-		boolean withdrawSuccessful = withdraw(amount);
+		boolean withdrawSuccessful = !(amount>balance);
 		if (withdrawSuccessful){
+			balance = balance - amount;
 			toAccount.deposit(amount);
-			Transaction trans = new Transaction(amount, "Transfer from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
+			Transaction trans = new Transaction(amount, "Transfer sent from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
 			transactions.add(trans);
+			Transaction trans2 = new Transaction(amount, "Transfer received from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
+			toAccount.addTransaction(trans2);
 			return true;
 		}
 		else
@@ -76,7 +83,7 @@ public class Account {
 	}
 	
 	public int accountId(){
-		return id;
+		return identification;
 	}
 	
 	public Person accountHolder(){
@@ -87,8 +94,12 @@ public class Account {
 		return accountType;
 	}
 	
+	public ArrayList<Transaction> accountTransactions(){
+		return transactions;
+	}
+	
 	public String toString(){
-		String accountStr = "Account Name: " + accountName() + "\n Balance: " + accountBalance() + "\n Account Type: " + accountType().toString() + "\n Account Holder: " + accountHolder.toString() + "\n Account Id: " + accountId();
+		String accountStr = "Account Name: " + accountName() + "\n Balance: " + accountBalance() + "\n Account Type: " + accountType().toString() + "\n Account Holder: " + accountHolder().toString() + "\n Account Id: " + identification;
 		return accountStr;
 	}
 }

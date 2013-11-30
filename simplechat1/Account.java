@@ -9,7 +9,7 @@ public class Account {
 	private int identification;
 	private AccountType accountType;
 	private Person accountHolder;
-	ArrayList<Transaction> transactions;
+	private ArrayList<Transaction> transactions;
 	
 	public Account(double balance, String name, AccountType accountType, Person accountHolder){
 		Random rand = new Random();
@@ -45,12 +45,19 @@ public class Account {
 		transactions.add(trans);
 	}
 	
+	public void addTransaction(Transaction transaction){
+		transactions.add(transaction);
+	}
+	
 	public boolean transfer(Account toAccount, double amount){
-		boolean withdrawSuccessful = withdraw(amount);
+		boolean withdrawSuccessful = !(amount>balance);
 		if (withdrawSuccessful){
+			balance = balance - amount;
 			toAccount.deposit(amount);
-			Transaction trans = new Transaction(amount, "Transfer from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
+			Transaction trans = new Transaction(amount, "Transfer sent from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
 			transactions.add(trans);
+			Transaction trans2 = new Transaction(amount, "Transfer received from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
+			toAccount.addTransaction(trans2);
 			return true;
 		}
 		else
@@ -85,6 +92,10 @@ public class Account {
 	
 	public AccountType accountType(){
 		return accountType;
+	}
+	
+	public ArrayList<Transaction> accountTransactions(){
+		return transactions;
 	}
 	
 	public String toString(){

@@ -166,6 +166,19 @@ public class ClientConsole implements ChatIF
         				client.handleMessageFromClientUI("#withdraw " + words[1] + " " + words[2]);
         		}
         	}
+        	else if (message.contains("#displaytransactions")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to login in order to view your transactions");
+        		}
+        		else{
+        			String[] words = message.split(" ");
+        			if (words.length!=2){
+        				System.out.println("Please enter #displaytransactions followed by account id");
+        			}
+        			else
+        				client.handleMessageFromClientUI("#displaytransactions " + words[1]);
+        		}
+        	}
         	else if (message.contains("#transfer")){
         		if (!client.isConnected()){
         			System.out.println("You will need to login in order to withdraw or deposit funds");

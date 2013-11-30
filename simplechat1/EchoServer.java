@@ -127,9 +127,36 @@ public class EchoServer extends AbstractServer
 			}
 		  }
 	  }
+	  else if (message.startsWith("#displaytransactions")){
+		  ArrayList<Account> accounts = currentPerson.getAccounts();
+		  Account transAccount = null;
+		  String[] words = message.split(" ");
+		  for (Account account : accounts){
+			  if(account.accountId()==Integer.parseInt(words[1]))
+				  transAccount = account;
+		  }
+		  if (transAccount==null){
+			  try {
+				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
+			} catch (IOException e) {
+				System.out.println("IO Exception");
+			}
+		  }
+		  else{
+			  for (Transaction trans : transAccount.accountTransactions()){
+				  try {
+					client.sendToClient(trans.toString()+"");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+		  }
+		  
+	  }
 	  else if(message.startsWith("#deposit")){
 		  String[] words = message.split(" ");
 		  Account depositAccount = null;
+		  double amount = Double.parseDouble(words[2]);
 		  ArrayList<Account> accounts = currentPerson.getAccounts();
 		  for (Account account : accounts){
 			  if(account.accountId()==Integer.parseInt(words[1]))
@@ -139,23 +166,32 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Expception");
+				System.out.println("IO Exception");
 			}
 		  }
 		  else{
-			  depositAccount.deposit(Double.parseDouble(words[2]));
-			  try {
-				client.sendToClient("Deposit successful. Your new account balance is " + depositAccount.accountBalance());
-			} catch (IOException e) {
-				System.out.println("IO Expception");
-			}
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
+			  else{
+				  depositAccount.deposit(amount);
+				  try {
+					client.sendToClient("Deposit successful. Your new account balance is " + depositAccount.accountBalance());
+				} catch (IOException e) {
+					System.out.println("IO Exception");
+				}
+			  }
 		  }
 		  
 	  }
 	  else if(message.startsWith("#withdraw")){
-		  boolean success = false;
 		  String[] words = message.split(" ");
 		  Account withdrawlAccount = null;
+		  double amount = Double.parseDouble(words[2]);
 		  ArrayList<Account> accounts = currentPerson.getAccounts();
 		  for (Account account : accounts){
 			  if(account.accountId()==Integer.parseInt(words[1]))
@@ -165,32 +201,43 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Expception");
+				System.out.println("IO Exception");
 			}
 		  }
 		  else{
-			  success = withdrawlAccount.withdraw(Double.parseDouble(words[2]));
-		  }
-		  if (!success){
-			  try {
-				client.sendToClient("Insufficient Funds!");
-			} catch (IOException e) {
-				System.out.println("IO Expception");
-			}
-		  }
-		  else{
-			  try {
-					client.sendToClient("Withdrawl successful. Your new account balance is " + withdrawlAccount.accountBalance());
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
 				} catch (IOException e) {
-					System.out.println("IO Expception");
+					System.out.println("IO Exception");
 				}
+			  }
+			  else{
+				  boolean success = withdrawlAccount.withdraw(amount);
+				  if (!success){
+					  try {
+						client.sendToClient("Withdraw unsuccessful! Insufficient Funds.");
+					} catch (IOException e) {
+						System.out.println("IO Exception");
+					}
+				  }
+				  else{
+					  try {
+							client.sendToClient("Withdrawl successful. Your new account balance is " + withdrawlAccount.accountBalance());
+						} catch (IOException e) {
+							System.out.println("IO Exception");
+						}
+				  }
+			  }
 		  }
+		  
 	  }
 	  else if(message.startsWith("#transfer")){
-		  boolean success = false;
 		  String[] words = message.split(" ");
 		  Account yourAccount = null;
 		  Account transferToAccount = null;
+		  double amount;
+		  amount = Double.parseDouble(words[3]);
 		  ArrayList<Account> accounts = new ArrayList<Account>();
 		  for (Person p : people){
 			  for (Account account : p.getAccounts()){
@@ -208,33 +255,43 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Expception");
+				System.out.println("IO Exception");
 			}
 		  }
 		  else if (transferToAccount == null){
 			  try {
 				client.sendToClient("SERVER MSG> The transfer to account with that account id does not exist");
 			} catch (IOException e) {
-				System.out.println("IO Expception");
+				System.out.println("IO Exception");
 			}
 		  }
 		  else{
-			  success = yourAccount.transfer(transferToAccount, Double.parseDouble(words[3]));
-		  }
-		  if (!success){
-			  try {
-				client.sendToClient("Transfer unsuccessful!");
-			} catch (IOException e) {
-				System.out.println("IO Expception");
-			}
-		  }
-		  else{
-			  try {
-					client.sendToClient("Transfer successful. Your new account balance is " + yourAccount.accountBalance());
+			  if (amount<0){
+				  try {
+					client.sendToClient("You cannot enter a negative amount");
 				} catch (IOException e) {
-					System.out.println("IO Expception");
+					System.out.println("IO Exception");
 				}
+			  }
+			  else{
+				  boolean success = yourAccount.transfer(transferToAccount, amount);
+				  if (!success){
+					  try {
+						client.sendToClient("Transfer unsuccessful! Insufficient funds.");
+					} catch (IOException e) {
+						System.out.println("IO Exception");
+					}
+				  }
+				  else{
+					  try {
+							client.sendToClient("Transfer successful. Your new account balance is " + yourAccount.accountBalance());
+						} catch (IOException e) {
+							System.out.println("IO Exception");
+						}
+				  }
+			  }
 		  }
+		  
 	  }
 	  
 	  String login = client.getInfo("login id").toString();

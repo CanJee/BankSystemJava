@@ -43,13 +43,7 @@ public class Transaction {
 	
 	public String toString(){
 		String transaction = "Amount: " + transactionAmount() + "\n Date: " + transactionDate() + "\n Memo: " + transactionMemo();
-		Account toAccount = transferToAccount();
-		if (toAccount==null)
-			return transaction;
-		else{
-			transaction+="\n Transfer to Account: " + toAccount;
-			return transaction;
-		}
+		return transaction;
 	}
 	
 }

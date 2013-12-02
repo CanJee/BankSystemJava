@@ -27,6 +27,8 @@ public class EchoServer extends AbstractServer
   final public static int DEFAULT_PORT = 5555;
   private static ArrayList<Person> people;
   private static Person currentPerson;
+  private static Account jacksCheckingTest;
+  private static Account bobsSavingsTest;
   
   //Constructors ****************************************************
   
@@ -86,9 +88,9 @@ public class EchoServer extends AbstractServer
 					  currentPerson = p;
 					  
 					  try {
-						client.sendToClient(email + " has successfully logged in");
+						client.sendToClient("SERVER MSG> " + email + " has successfully logged in");
 					} catch (IOException e) {
-						System.out.println("IO Exception");
+						System.out.println("SERVER MSG> IO Exception");
 					}
 					  return;
 				  }
@@ -97,7 +99,7 @@ public class EchoServer extends AbstractServer
 				client.sendToClient("SERVER MSG> Error: Invalid email or password entered");
 				client.close();
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 			  return;
 		  }
@@ -108,22 +110,32 @@ public class EchoServer extends AbstractServer
 				client.sendToClient("SERVER MSG> Error: You must log in");
 				client.close();
 			} catch (IOException e) {
-
+				System.out.println("SERVER MSG> IO Exception");
 			}
 			  serverConsole.display("Message received: " + msg + " from " + client);
 			  return;
 		  }
 	  } catch (IOException e) {
-
+		  System.out.println("SERVER MSG> IO Exception");
 	  }
 	  
-	  if(message.startsWith("#displayaccounts")){
+	  if (message.startsWith("#dotest")){
+		  if (currentPerson.getEmail().equals("test@gmail.com"))
+			  doTest(client);
+		else
+			try {
+				client.sendToClient("SERVER MSG> You will need to use the <#login test@gmail.com test> command before using #dotest");
+			} catch (IOException e) {
+				System.out.println("SERVER MSG> IO Exception");
+			}
+	  }
+	  else if(message.startsWith("#displayaccounts")){
 		  ArrayList<Account> accounts = currentPerson.getAccounts();
 		  for (Account account : accounts){
 			  try {
 				client.sendToClient(account+"");
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 		  }
 	  }
@@ -139,7 +151,7 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 		  }
 		  else{
@@ -147,7 +159,7 @@ public class EchoServer extends AbstractServer
 				  try {
 					client.sendToClient(trans.toString()+"");
 				} catch (IOException e) {
-					System.out.println("IO Exception");
+					System.out.println("SERVER MSG> IO Exception");
 				}
 			  }
 		  }
@@ -172,17 +184,17 @@ public class EchoServer extends AbstractServer
 		  else{
 			  if (amount<0){
 				  try {
-					client.sendToClient("You cannot enter a negative amount");
+					client.sendToClient("SERVER MSG> You cannot enter a negative amount");
 				} catch (IOException e) {
-					System.out.println("IO Exception");
+					System.out.println("SERVER MSG> IO Exception");
 				}
 			  }
 			  else{
 				  depositAccount.deposit(amount);
 				  try {
-					client.sendToClient("Deposit successful. Your new account balance is " + depositAccount.accountBalance());
+					client.sendToClient("SERVER MSG> Deposit successful. Your new account balance is " + depositAccount.accountBalance());
 				} catch (IOException e) {
-					System.out.println("IO Exception");
+					System.out.println("SERVER MSG> IO Exception");
 				}
 			  }
 		  }
@@ -201,31 +213,31 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 		  }
 		  else{
 			  if (amount<0){
 				  try {
-					client.sendToClient("You cannot enter a negative amount");
+					client.sendToClient("SERVER MSG> You cannot enter a negative amount");
 				} catch (IOException e) {
-					System.out.println("IO Exception");
+					System.out.println("SERVER MSG> IO Exception");
 				}
 			  }
 			  else{
 				  boolean success = withdrawlAccount.withdraw(amount);
 				  if (!success){
 					  try {
-						client.sendToClient("Withdraw unsuccessful! Insufficient Funds.");
+						client.sendToClient("SERVER MSG> Withdraw unsuccessful! Insufficient Funds.");
 					} catch (IOException e) {
-						System.out.println("IO Exception");
+						System.out.println("SERVER MSG> IO Exception");
 					}
 				  }
 				  else{
 					  try {
-							client.sendToClient("Withdrawl successful. Your new account balance is " + withdrawlAccount.accountBalance());
+							client.sendToClient("SERVER MSG> Withdrawl successful. Your new account balance is " + withdrawlAccount.accountBalance());
 						} catch (IOException e) {
-							System.out.println("IO Exception");
+							System.out.println("SERVER MSG> IO Exception");
 						}
 				  }
 			  }
@@ -255,38 +267,38 @@ public class EchoServer extends AbstractServer
 			  try {
 				client.sendToClient("SERVER MSG> Either an account with that account id does not exist or you do not own that account");
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 		  }
 		  else if (transferToAccount == null){
 			  try {
 				client.sendToClient("SERVER MSG> The transfer to account with that account id does not exist");
 			} catch (IOException e) {
-				System.out.println("IO Exception");
+				System.out.println("SERVER MSG> IO Exception");
 			}
 		  }
 		  else{
 			  if (amount<0){
 				  try {
-					client.sendToClient("You cannot enter a negative amount");
+					client.sendToClient("SERVER MSG> You cannot enter a negative amount");
 				} catch (IOException e) {
-					System.out.println("IO Exception");
+					System.out.println("SERVER MSG> IO Exception");
 				}
 			  }
 			  else{
 				  boolean success = yourAccount.transfer(transferToAccount, amount);
 				  if (!success){
 					  try {
-						client.sendToClient("Transfer unsuccessful! Insufficient funds.");
+						client.sendToClient("SERVER MSG> Transfer unsuccessful! Insufficient funds.");
 					} catch (IOException e) {
-						System.out.println("IO Exception");
+						System.out.println("SERVER MSG> IO Exception");
 					}
 				  }
 				  else{
 					  try {
-							client.sendToClient("Transfer successful. Your new account balance is " + yourAccount.accountBalance());
+							client.sendToClient("SERVER MSG> Transfer successful. Your new account balance is " + yourAccount.accountBalance());
 						} catch (IOException e) {
-							System.out.println("IO Exception");
+							System.out.println("SERVER MSG> IO Exception");
 						}
 				  }
 			  }
@@ -339,8 +351,10 @@ public class EchoServer extends AbstractServer
 	people.add(p1);
 	Person p2 = new Person("Bob", "5678", "bob@gmail.com");
 	people.add(p2);
-	Account jackChecking = new Account(100.50, "Jack's Checking Account", checking, p1);
-	Account bobSavings = new Account(500.21, "Bob's Savings Account", savings, p2);
+	Person p3 = new Person ("Test Account", "test", "test@gmail.com");
+	people.add(p3);
+	jacksCheckingTest = new Account(100.50, "Jack's Checking Account", checking, p1);
+	bobsSavingsTest = new Account(500.21, "Bob's Savings Account", savings, p2);
     int port = 0; //Port to listen on
 
     try
@@ -376,6 +390,46 @@ public class EchoServer extends AbstractServer
   protected void clientConnected(ConnectionToClient client) 
   {
 	  serverConsole.display("A client has connected");
+	  
+  }
+  
+  public void doTest(ConnectionToClient client){
+	  serverConsole.display("Initiating test");
+	  try {
+		client.sendToClient("Initiating test");
+	} catch (IOException e) {
+		System.out.println("SERVER MSG> IO Exception");
+	}
+	  currentPerson = people.get(0);
+	  ArrayList<Account> accounts = people.get(0).getAccounts();
+	  for (Account account : accounts){
+		  try {
+			client.sendToClient(account+"");
+		} catch (IOException e) {
+			System.out.println("SERVER MSG> IO Exception");
+		}
+	  }
+	  handleMessageFromClient("#withdraw " + jacksCheckingTest.accountId() + " 50", client);
+	  handleMessageFromClient("#deposit " + jacksCheckingTest.accountId() + " 50", client);
+	  handleMessageFromClient("#transfer " + jacksCheckingTest.accountId() + " " + bobsSavingsTest.accountId() + " 50", client);
+	  handleMessageFromClient("#displaytransactions " + jacksCheckingTest.accountId(), client);
+	  currentPerson = people.get(1);
+	  ArrayList<Account> accounts2 = people.get(1).getAccounts();
+	  for (Account account : accounts2){
+		  try {
+			client.sendToClient(account+"");
+		} catch (IOException e) {
+			System.out.println("SERVER MSG> IO Exception");
+		}
+	  }
+	  handleMessageFromClient("#displaytransactions " + bobsSavingsTest.accountId(), client);
+	  serverConsole.display("Test finished successfully");
+	  try {
+		client.sendToClient("Test finished successfully");
+	} catch (IOException e) {
+		System.out.println("SERVER MSG> IO Exception");
+	}
+	  currentPerson = people.get(3);
   }
     
   /*

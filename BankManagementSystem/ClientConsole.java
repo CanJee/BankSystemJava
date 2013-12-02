@@ -140,6 +140,15 @@ public class ClientConsole implements ChatIF
         			client.handleMessageFromClientUI("#displayaccounts");
         		}
         	}
+        	else if (message.contains("#dotest")){
+        		if (!client.isConnected()){
+        			System.out.println("You will need to use the <#login test@gmail.com test> command before using #dotest");
+        		}
+        		else{
+        			client.handleMessageFromClientUI("#dotest");
+        		}
+        		
+        	}
         	else if (message.contains("#deposit")){
         		if (!client.isConnected()){
         			System.out.println("You will need to login in order to withdraw or deposit funds");

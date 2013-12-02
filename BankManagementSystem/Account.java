@@ -53,7 +53,7 @@ public class Account {
 		boolean withdrawSuccessful = !(amount>balance);
 		if (withdrawSuccessful){
 			balance = balance - amount;
-			toAccount.deposit(amount);
+			toAccount.balance += amount;
 			Transaction trans = new Transaction(amount, "Transfer sent from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);
 			transactions.add(trans);
 			Transaction trans2 = new Transaction(amount, "Transfer received from account " + accountName() + ":" + accountId() + " to account " + toAccount.accountName() + ":" + toAccount.accountId(), toAccount);

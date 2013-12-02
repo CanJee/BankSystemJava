@@ -38,16 +38,15 @@ Commands:
     Name : Jack
     Email : jack@gmail.com
     Password : 1234
-    
     Accounts :
       Name : Jack's Checking Account
       Balance : 100.50
       Account Type : Checking
+      
   Person 1:
     Name : Bob
     Email : bob@gmail.com
     Password : 5678
-    
     Accounts :
       Name : Bob's Savings Account
       Balance : 500.21
@@ -59,7 +58,6 @@ Commands:
     Name : Test
     Email : test@gmail.com
     Password : test
-    
     Accounts : <None>
     
   The only command you can preform with the above person is `#dotest`.

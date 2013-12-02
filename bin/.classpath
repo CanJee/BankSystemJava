@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="simplechat1/" kind="src" path=""/>
-	<classpathentry kind="src" path="simplechat1"/>
+	<classpathentry excluding="BankManagementSystem/" kind="src" path=""/>
+	<classpathentry kind="src" path="BankManagementSystem"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

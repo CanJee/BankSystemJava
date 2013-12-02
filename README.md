@@ -35,19 +35,23 @@ Commands:
   When the Server is initiated, 3 people are created and 2 accounts are created for testing purposes. The details are as    follows:
   
   Person 0:
+  
     Name : Jack
     Email : jack@gmail.com
     Password : 1234
     Accounts :
+    
       Name : Jack's Checking Account
       Balance : 100.50
       Account Type : Checking
       
   Person 1:
+  
     Name : Bob
     Email : bob@gmail.com
     Password : 5678
     Accounts :
+    
       Name : Bob's Savings Account
       Balance : 500.21
       Account Type : Savings
@@ -55,6 +59,7 @@ Commands:
   You can preform various commands with these two accounts
   
   Person 3:
+  
     Name : Test
     Email : test@gmail.com
     Password : test
